@@ -1,0 +1,11 @@
+pyside2
+numpy
+sqlalchemy
+python-docx
+matplotlib
+pandas
+requests
+confluent_kafka
+pymysql
+paramiko
+snakebite-py3

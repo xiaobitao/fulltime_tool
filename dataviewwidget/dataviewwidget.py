@@ -11,7 +11,7 @@ from PySide2.QtWidgets import QWidget, QSplitter, QFileSystemModel,\
         QVBoxLayout, QHBoxLayout, QTreeView, QPushButton, QCalendarWidget, \
         QDateEdit, QLabel, QGroupBox
 from PySide2.QtWidgets import QAbstractItemView, QProgressBar, QMenu, QAction, \
-    QDialog, QTableView, QLineEdit, QFormLayout
+    QDialog, QTableView, QLineEdit, QFormLayout, QProgressDialog
 from PySide2.QtGui import QContextMenuEvent
 
 from PySide2.QtCharts import QtCharts
@@ -21,21 +21,33 @@ import numpy as np
 from datawidget.dataexplorer import *
 from datawidget.hdfstree import HDFSTreeWidget
 from util.wimhdfs import HDFSDir, HDFSFile
-from dataviewwidget.showdata import ShowDataPicture
+# from dataviewwidget.showdata import ShowDataPicture
 
 class DownloadThread(QtCore.QThread):
 
-    fullpath = ""
+    fullpaths = []
+
+    showdlg = None
 
     def run(self):
-        fl = HDFSFile(self.fullpath)
-        fl.download("./")
+        for fp in self.fullpaths:
+            fl = HDFSFile(fp)
+            fl.download("./")
+        try:
+            if self.showdlg is not None:
+                self.showdlg.close()
+        except Exception as e:
+            print(str(e))
+
+
+
 
 class FileOpsWidget(QWidget):
     """FileOpsWidget consists of a list of ops or indicators.
     """
     def __init__(self, tree_view, parent=None):
         super().__init__(parent)
+        self.downloadthread = None
         self.tree_view = tree_view  # the related tree_view.
         vbox = QVBoxLayout()
 
@@ -83,9 +95,27 @@ class FileOpsWidget(QWidget):
                 
         #         # Use a separate thread to copy/move the files.
         #         self.progress_bar.setValue(6)
-        
-        select_items = self.tree_view.selected_items()
-        for item in select_items:
+        try:
+            select_items = self.tree_view.selected_items()
+            self.downloadthread = DownloadThread()
+            self.downloadthread.fullpaths = select_items
+            self.downloadthread.start()
+            
+            progressDialog = QProgressDialog(
+                "下载", "取消", 0, 0, parent=self)
+            self.downloadthread.showdlg = progressDialog
+            progressDialog.setWindowTitle("下载")
+            progressDialog.setMinimumDuration(0)
+            progressDialog.setMinimum(0)
+            progressDialog.setMaximum(100)
+            progressDialog.setRange(0, 0)
+
+            progressDialog.setFixedSize(progressDialog.width(),
+                                        progressDialog.height())
+            progressDialog.show()
+        except Exception as e:
+            print(str(e))
+
            
 
 
@@ -211,7 +241,7 @@ class DataFileWidget(QWidget):
         data_explore.triggered.connect(self.explore_data)
 
         self.dataExplorer = DataExplorer(self)
-        self.summerData = ShowDataPicture(self)
+        # self.summerData = ShowDataPicture(self)
     
     def contextMenuEvent(self, event: QContextMenuEvent):
         
