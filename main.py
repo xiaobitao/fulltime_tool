@@ -70,12 +70,12 @@ class MainWindow(QMainWindow):
         # mainLayout.addWidget(buttonBox)
         self.setCentralWidget(self._tab_widget)
 
-        # self.kafkacli = KafkaClient()
+        self.kafkacli = KafkaClient()
         # self.kafkacli.initmsg.connect(self.initwid.refresh_kafkamsg)
-        # self.kafkacli.vechdrive.connect(self.vechwid.refresh_kafkamsg)
-        # self.kafkacli.invasion.connect(self.invaswid.refresh_kafkamsg)
+        self.kafkacli.vechdrive.connect(self.vechwid.refresh_kafkamsg)
+        self.kafkacli.invasion.connect(self.invaswid.refresh_kafkamsg)
         # connect kafka signal to widget slot
-        # self.kafkacli.start()
+        self.kafkacli.start()
 
     def stop(self):
         self.kafkacli.stop()

@@ -28,11 +28,11 @@ class DownloadThread(QtCore.QThread):
     fullpaths = []
 
     showdlg = None
-
+    folder = "data"
     def run(self):
         for fp in self.fullpaths:
             fl = HDFSFile(fp)
-            fl.download("./")
+            fl.download("./%s" % self.folder)
         try:
             if self.showdlg is not None:
                 self.showdlg.close()

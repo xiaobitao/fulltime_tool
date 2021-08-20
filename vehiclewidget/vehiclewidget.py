@@ -50,7 +50,9 @@ class VehicleWidget(QWidget):
             return
         self.lastrefresh = datetime.now()
         tun_dict = json.loads(value)
-        # print(tun_dict)
+        # tun_dict = value
+        print(key)
+        print(tun_dict)
         self.vech_slider.refreshData(tun_dict)
-        self.vech_driving.refreshData(tun_dict)
+        # self.vech_driving.refreshData(tun_dict)
 

@@ -92,9 +92,9 @@ class VehicleSlider(QWidget):
         hlayout2.addStretch(1)
 
         hlayout2.addWidget(QLabel(u"实时速度"))
-        self.speed = QLineEdit()
-        self.speed.setText(u"30km/h")
-        hlayout2.addWidget(self.speed)
+        self.speed_ln = QLineEdit()
+        self.speed_ln.setText(u"30km/h")
+        hlayout2.addWidget(self.speed_ln)
         hlayout2.addStretch(1)
 
         vlayout.addLayout(hlayout2)
@@ -115,18 +115,25 @@ class VehicleSlider(QWidget):
         
 
     def refreshData(self, vechdata):
-        self.poinstvirb =  vechdata["fs"]
-        self.speed = vechdata["subwayV"]
-        self.gaugecar.setCurrentValue(self.speed)
-        self.bdamp = vechdata["sensors"]["buffered"]
-        self.gpos = vechdata["sensors"]["groundPos"]
-        self.refreshFreq()
-        
+        try:
+            # print(type(vechdata))
+            # print(vechdata)
+            self.poinstvirb =  vechdata["fs"]
+            self.speedval = vechdata["subwayV"]
+            self.gaugecar.setCurrentValue(self.speedval)
+            self.speed_ln.setText(str(self.speedval))
+            self.bdamp = vechdata["sensors"]["buffered"]
+            self.gpos = vechdata["sensors"]["groundPos"]
+            self.sensor = vechdata["sensorNo"]
+            self.slider.setValue(self.sensor)
+            self.refreshFreq()
+        except Exception as e:
+            print(e)    
         # self._update_vechpos()
 
     def _update_vechpos(self):
         pass
-        # # v = VechRest()
+        # v = VechRest()
         # data = v.get_vechpos()
         # # car reg should to be set by config
         # # car_reg = data["carRegion"]
