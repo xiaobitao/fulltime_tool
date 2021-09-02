@@ -286,24 +286,26 @@ class InvasionWidget(QWidget):
         self.addAlarm(alarm_val)
 
     def addAlarm(self, alarmval):
+        print("add alarm")
         alarmlevel = alarmval["alarmLevel"]
         tmptype = alarmval["alarmType"]
-        alarmtype = 0
-        print(tmptype)
+        # alarmtype = 0
+        # print(tmptype)
         if tmptype == u"外部入侵":
             alarmtype = 1
         elif tmptype == u"内部入侵":
             alarmtype = 2
-        alarminfo = json.dumps(alarmval["alarmInfo"])
+        # alarminfo = json.dumps(alarmval["alarmInfo"])
         demoid = alarmval["channels"]["demodulatorID"]
         channelnum = alarmval["channels"]["channelNo"]
-        add_alarm(alarmlevel, alarmtype, demoid, channelnum, alarminfo, None)
+        add_alarm(alarmlevel, alarmtype, demoid, channelnum, "", None)
         self.refreshTableFromDB()
 
     def refreshTableFromDB(self):
         self.tableModel.clear()
         self.mapview.clearAlerts()
         alarms = get_invasion_alarms()
+        print("alarms count %d" % len(alarms))
         for alm in alarms:
             entry = {}
             demoid = alm.demoid
@@ -313,6 +315,8 @@ class InvasionWidget(QWidget):
             entry["alert_type"] = alm.alarmtype
             # 获取位置
             demo = get_demo(demoid)
+            if demo is None:
+                continue
             entry["position"] = demo.position
             entry["note"] = alm.note
             entry["reslove_time"] = alm.resolve_time
@@ -320,8 +324,10 @@ class InvasionWidget(QWidget):
             entry["status"] = alm.status
             self.addEntry(entry)
             # 更新mapview的alarm
-
+            if alm.alarminfo is not None:
+                continue
             if alm.status == 0:
+                
                 alarm_val = {}
                 alarm_val["alarmLevel"] =alm.level
                 alarm_val["alarmInfo"] = json.loads(alm.alarminfo)

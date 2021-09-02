@@ -3,6 +3,24 @@ from configparser import ConfigParser
 import re
 import struct
 import numpy as np
+from PySide2 import QtCore
+from util.wimhdfs import HDFSFile
+
+class DownloadThread(QtCore.QThread):
+
+    fullpaths = []
+
+    showdlg = None
+    folder = "data"
+    def run(self):
+        for fp in self.fullpaths:
+            fl = HDFSFile(fp)
+            fl.download("./%s" % self.folder)
+        try:
+            if self.showdlg is not None:
+                self.showdlg.close()
+        except Exception as e:
+            print(str(e))
 
 def get_config():
     cfg = ConfigParser()

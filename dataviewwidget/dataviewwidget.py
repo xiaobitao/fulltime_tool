@@ -22,23 +22,7 @@ from datawidget.dataexplorer import *
 from datawidget.hdfstree import HDFSTreeWidget
 from util.wimhdfs import HDFSDir, HDFSFile
 # from dataviewwidget.showdata import ShowDataPicture
-
-class DownloadThread(QtCore.QThread):
-
-    fullpaths = []
-
-    showdlg = None
-    folder = "data"
-    def run(self):
-        for fp in self.fullpaths:
-            fl = HDFSFile(fp)
-            fl.download("./%s" % self.folder)
-        try:
-            if self.showdlg is not None:
-                self.showdlg.close()
-        except Exception as e:
-            print(str(e))
-
+from util.util import DownloadThread
 
 
 

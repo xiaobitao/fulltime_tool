@@ -40,6 +40,22 @@ class KafkaClient(QtCore.QThread):
             self.vechdrive.emit("subwayDemo_subwayInfo", json.dumps(tdict))
             time.sleep(1)
 
+    def __test_alarm(self):
+        tdict = { 
+                    "alarmLevel": 1, "alarmSensor": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                    "groundPos": "湖工大侧门" ,
+                    "alarmType": "外部入侵",
+                    "alarmInfo":[{"alarmSensor": [38, 39, 40, 41, 42], "groundPos": "竹叶山"}, {"alarmSensor": [142, 143, 144, 145, 146], "groundPos": "竹叶山"}, {"alarmSensor": [357, 358, 359, 360, 361], "groundPos": "黄浦路"}],
+                    "channels": { "channelNo": 1, "channelPos": "上行道轨", "dataFlow": 2.01, "demodulatorID": 1, "frameSize": 527, "packetSize": 100, "sensorNum": 527 },
+                    "sDatetime": "2020-04-27 13:24:46 047" }
+        
+        # tdict["sensorNo"] = 
+        # tdict["subwayV"] = random.choice(range(30, 60))
+        # tdict['fs'] = random.sample(range(0, 100), 10)
+        # print(tdict)
+        # self.invasion.emit("alarmDemo_externalAlarm", json.dumps(tdict))
+        time.sleep(10)
+
 
     def __init__(self):
         super(KafkaClient, self).__init__()
@@ -54,7 +70,8 @@ class KafkaClient(QtCore.QThread):
 
     def run(self):
         while self.working:
-            self.__test_v()
+            # self.__test_v()
+            self.__test_alarm()
             
             
 

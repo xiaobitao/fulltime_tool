@@ -217,7 +217,7 @@ def get_channels(demo_id):
 
 def get_invasion_alarms():
     invalarms = Alarms.query.filter(Alarms.alarmtype == 1)
-    return invalarms
+    return invalarms.all()
 
 def update_alarm(alarm_id, note, resolve_people):
     alarm = Alarms.query.filter(Alarms.id == alarm_id)

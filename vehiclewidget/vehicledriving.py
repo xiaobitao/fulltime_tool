@@ -1,12 +1,13 @@
 # -*- coding:utf-8 -*-
 from functools import partial
 import sys
+import os
 import uuid
 import time
 import numpy as np
 
 from PySide2 import QtCore
-from PySide2.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QComboBox, QLineEdit, QMessageBox,
+from PySide2.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QComboBox, QLineEdit, QMessageBox, QProgressDialog,
                                QTreeView, QPushButton, QLabel, QGroupBox, QFileSystemModel, QFileDialog)
 
 from matplotlib.backends.backend_qt5agg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
@@ -19,6 +20,7 @@ from util.wimhdfs import HDFSDir, HDFSFile
 
 from util.rest import PointsData
 # from util.util import read_binfile, get_current_directory
+from util.util import DownloadThread
 
 class VehicleDriving(QWidget):
     """行车分析控件."""
@@ -135,7 +137,7 @@ class VehicleDriving(QWidget):
         self.export_but.clicked.connect(self.outputData)
         hlayout1.addWidget(self.export_but)
         
-        vlayout.addLayout(hlayout1)
+        # vlayout.addLayout(hlayout1)
 
         hlayout2 = QHBoxLayout()
         hlayout2.addWidget(QLabel(u"删除数据"))
@@ -145,7 +147,7 @@ class VehicleDriving(QWidget):
         self.del_but = QPushButton(u"删除")
         hlayout2.addWidget(self.del_but)
 
-        vlayout.addLayout(hlayout2)
+        # vlayout.addLayout(hlayout2)
 
         hlayout3 = QHBoxLayout()
         hlayout3.addWidget(QLabel(u"保存当前缓冲区行车数据"))
@@ -153,14 +155,14 @@ class VehicleDriving(QWidget):
         self.save_but = QPushButton(u"保存")
         hlayout3.addWidget(self.save_but)
 
-        vlayout.addLayout(hlayout3)
+        # vlayout.addLayout(hlayout3)
         
         hlayout4 = QHBoxLayout()
         hlayout4.addWidget(QLabel(u"是否自动保存数据"))
         hlayout4.addStretch(1)
         self.switch_but = SwitchButton()
         hlayout4.addWidget(self.switch_but)
-        vlayout.addLayout(hlayout4)
+        # vlayout.addLayout(hlayout4)
 
         groupBox.setLayout(vlayout)
         return groupBox
@@ -186,22 +188,44 @@ class VehicleDriving(QWidget):
 
     def generatorPicture(self, pictype):
         srcPath = self.tree.getSelectItemPath()
+        print(srcPath)
         if len(self.pointlne.text()) == 0:
             pointnum = 100
         else:
             pointnum = int(self.pointlne.text())
-        pd = PointsData()
+        # pd = PointsData()
+        folder = 'tmp'
+        filename = srcPath.split("/")[-1]
+        dstPath = "./%s/%s" % (folder, filename)
+        if not os.path.exists(dstPath):
+            self.downloadthread = DownloadThread()
+            self.downloadthread.folder = folder
+            self.downloadthread.fullpaths = [srcPath]
+            self.downloadthread.start()
+            
+            progressDialog = QProgressDialog(
+                "加载", "取消", 0, 0, parent=self)
+            self.downloadthread.showdlg = progressDialog
+            progressDialog.setWindowTitle("加载")
+            progressDialog.setMinimumDuration(0)
+            progressDialog.setMinimum(0)
+            progressDialog.setMaximum(100)
+            progressDialog.setRange(0, 0)
+
+            progressDialog.setFixedSize(progressDialog.width(),
+                                        progressDialog.height())
+            progressDialog.show()
         print("pd get points data")
-        js_points = pd.get_points(srcPath, [pointnum])
-        print(len(js_points))
-        if len(js_points) == 0:
-            QMessageBox.warning(self, u"警告", u"获取数据失败")
-        else:
-            points = js_points[0]["data"]
-            if pictype == "spec":
-                self.drawSpectrogram(points)
-            elif pictype == "freq":
-                self.drawFreqdom(points)
+        # js_points = pd.get_points(srcPath, [pointnum])
+        # print(len(js_points))
+        # if len(js_points) == 0:
+        #     QMessageBox.warning(self, u"警告", u"获取数据失败")
+        # else:
+        #     points = js_points[0]["data"]
+        #     if pictype == "spec":
+        #         self.drawSpectrogram(points)
+        #     elif pictype == "freq":
+        #         self.drawFreqdom(points)
 
     def drawSpectrogram(self, points):
         print("drawSpectrogram")
@@ -219,7 +243,8 @@ class VehicleDriving(QWidget):
         self._freqdom_ax.figure.canvas.draw()
 
     def spectrogramSlot(self):
-        QtCore.QTimer.singleShot(1, lambda : self.generatorPicture("spec"))
+        # QtCore.QTimer.singleShot(1, lambda : self.generatorPicture("spec"))
+        self.generatorPicture("spec")
 
     def freqdomSlot(self):
         QtCore.QTimer.singleShot(1, lambda : self.generatorPicture("freq"))
