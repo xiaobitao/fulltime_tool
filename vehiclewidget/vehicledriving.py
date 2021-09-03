@@ -20,7 +20,7 @@ from util.wimhdfs import HDFSDir, HDFSFile
 
 from util.rest import PointsData
 # from util.util import read_binfile, get_current_directory
-from util.util import DownloadThread
+from util.util import DownloadThread, readpoints_whufile
 
 class VehicleDriving(QWidget):
     """行车分析控件."""
@@ -216,16 +216,20 @@ class VehicleDriving(QWidget):
                                         progressDialog.height())
             progressDialog.show()
         print("pd get points data")
+        points = readpoints_whufile(dstPath)
+        
+        sepc_points = points[ :, pointnum]
+        print(sepc_points)
         # js_points = pd.get_points(srcPath, [pointnum])
         # print(len(js_points))
         # if len(js_points) == 0:
         #     QMessageBox.warning(self, u"警告", u"获取数据失败")
         # else:
-        #     points = js_points[0]["data"]
-        #     if pictype == "spec":
-        #         self.drawSpectrogram(points)
-        #     elif pictype == "freq":
-        #         self.drawFreqdom(points)
+     
+        if pictype == "spec":
+            self.drawSpectrogram(sepc_points)
+        elif pictype == "freq":
+            self.drawFreqdom(sepc_points)
 
     def drawSpectrogram(self, points):
         print("drawSpectrogram")
@@ -247,6 +251,7 @@ class VehicleDriving(QWidget):
         self.generatorPicture("spec")
 
     def freqdomSlot(self):
-        QtCore.QTimer.singleShot(1, lambda : self.generatorPicture("freq"))
+        # QtCore.QTimer.singleShot(1, lambda : self.generatorPicture("freq"))
+        self.generatorPicture("freq")
         
    

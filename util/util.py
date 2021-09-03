@@ -6,6 +6,32 @@ import numpy as np
 from PySide2 import QtCore
 from util.wimhdfs import HDFSFile
 
+
+def readpoints_whufile(filename):
+    filepath = filename
+    with open(filepath, 'rb') as f:
+        data = f.read()
+    date_time = re.findall(r'\d-\d+', filepath)[0]
+    param = re.findall(r'\d+', re.findall(r'\d+x\d+', filepath)[0])
+    rows = int(param[0])
+    cols = int(param[1])
+    # print(cols, rows)
+    value = struct.unpack(str(rows * cols) + 'f', data)
+    records = np.array(value).reshape(rows, cols)
+    return records
+    # pointtop = np.array([0,0,0,0,0,0,0,0,0,0])
+    # for i in range(cols):
+    #     col_arr = records[:, i]
+    #     print(len(col_arr))
+    #     # get normal array
+    #     col_top = np.sort(col_arr)[-10:]
+    #     col_top = col_top[::-1]
+    #     pointtop =  np.column_stack((pointtop, col_top))
+    #     print(pointtop.shape)
+    # return {"time": date_time, "toppoints": pointtop}
+
+
+
 class DownloadThread(QtCore.QThread):
 
     fullpaths = []
